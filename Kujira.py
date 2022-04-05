@@ -1,12 +1,28 @@
 # Kujira.py
+import selenium
+
 class Kujira:
     
-    test = "Michael"
-    test2 = ""
-    
-    def __init__(self, x):
-        self.test2 = x
-        self.samename = "Connor likes refridgerators too!"
+    #IMPORTANT - Change this to the path for the installed driver on your own machine. I wonder if there's a way to include this in the repo...
+    chromeDriverPath = "C:\chromedriver.exe" 
+    bLunaMarketURL = "https://orca.kujira.app/markets/terra/anchor/bLuna"
+
+    def __init__(self, driver):
+        self.driver = driver #Use Chrome...
+        self.driver.get(self.bLunaMarketURL) #Pop open a tab to the bLuna collateral market...
+        #Need to prompt the user to make sure their Terra Station Wallet is connected at this point
+        #Also prompt the user to choose their premium discount, bid amount, and percentage
+        #Once user confirms their input is good to go, init is done!
+        #Instead of manual input, we could automate that stuff in the future when we get better with Selenium, but not yet...
+
+
+    #Bread and butter of this class... Check for nonzero amount of bLuna to withdraw, and if nonzero, SMASH that withdraw button!
+    def autoWithdraw(self):
+        print("Michael is gonna build me!")
+
+    #This would allow us to automatically re-invest our earnings without a human to baby-sit the computer after making a withdrawal and Terra Station swaps to a stable coin.
+    def autoBid(self):
+        print("Michael might build me!")
 
     def showAtrributes(self):
-        print(self.test, self.test2, self.samename)
+        print(self.chromeDriverPath, self.bLunaMarketURL)
