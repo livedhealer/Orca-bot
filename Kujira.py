@@ -1,15 +1,14 @@
 # Kujira.py
-import selenium
+from selenium import webdriver
 
 class Kujira:
     
-    #IMPORTANT - Change this to the path for the installed driver on your own machine. I wonder if there's a way to include this in the repo...
-    chromeDriverPath = "C:\chromedriver.exe" 
-    bLunaMarketURL = "https://orca.kujira.app/markets/terra/anchor/bLuna"
-
-    def __init__(self, driver):
-        self.driver = driver #Use Chrome...
+    def __init__(self):
+        self.bLunaMarketURL = "https://orca.kujira.app/markets/terra/anchor/bLuna"
+        self.driver = webdriver.Chrome(".\chromedriver.exe") #Use Chrome...
         self.driver.get(self.bLunaMarketURL) #Pop open a tab to the bLuna collateral market...
+        #!!!!!ADD MICHAEL'S OLD FUNCTIONS HERE
+        
         #Need to prompt the user to make sure their Terra Station Wallet is connected at this point
         #Also prompt the user to choose their premium discount, bid amount, and percentage
         #Once user confirms their input is good to go, init is done!
@@ -26,3 +25,5 @@ class Kujira:
 
     def showAtrributes(self):
         print(self.chromeDriverPath, self.bLunaMarketURL)
+
+    #!!!!!ADD MICHAEL'S OLD FUNCTIONS HERE
