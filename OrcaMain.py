@@ -1,7 +1,7 @@
 # Orca.main.py
 
 from Kujira import Kujira
-from TerraStation import TerraStation
+from Terrastation import TerraStation
 
 terra = TerraStation()
 orca = Kujira()

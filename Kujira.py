@@ -27,3 +27,28 @@ class Kujira:
         print(self.chromeDriverPath, self.bLunaMarketURL)
 
     #!!!!!ADD MICHAEL'S OLD FUNCTIONS HERE
+
+    
+    # def wallet(self):
+    #     print("Sah dude?    'Dude' or 'Sah'?")
+
+    #     choice = input("> ")
+            
+    #     if "Dude" in choice:
+    #         self.UserInput()
+    #     elif "Sah" in choice:
+    #         self.wallet()
+    #     else:
+    #          print("Brah, what?")
+        
+    # def UserInput(self):
+    #     print("Dude Sah?    'Dude' or 'Sah'?")
+
+    #     choice = input("> ")
+
+    #     if "Dude" in choice:
+    #         print("LEGGO")
+    #     elif "Sah" in choice:
+    #         print("PeePee")
+    #     else:
+    #         print("Yeet")
