@@ -1,5 +1,7 @@
 # Kujira.py
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
 
 class Kujira:
     
@@ -7,6 +9,8 @@ class Kujira:
         self.bLunaMarketURL = "https://orca.kujira.app/markets/terra/anchor/bLuna"
         self.driver = webdriver.Chrome(".\chromedriver.exe") #Use Chrome...
         self.driver.get(self.bLunaMarketURL) #Pop open a tab to the bLuna collateral market...
+        self.autoWithdraw()
+
         #!!!!!ADD MICHAEL'S OLD FUNCTIONS HERE
         
         #Need to prompt the user to make sure their Terra Station Wallet is connected at this point
@@ -18,6 +22,18 @@ class Kujira:
     #Bread and butter of this class... Check for nonzero amount of bLuna to withdraw, and if nonzero, SMASH that withdraw button!
     def autoWithdraw(self):
         print("Michael is gonna build me!")
+
+        self.driver.implicitly_wait(5) #Identified as the method to get button to be clicked
+
+
+        self.driver.maximize_window()
+    
+        # test = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[1]/div[1]/div/i[1]')
+        # test.click()
+        
+        withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[1]/div[3]/button[1]')
+        withdrawal.click()
+
 
     #This would allow us to automatically re-invest our earnings without a human to baby-sit the computer after making a withdrawal and Terra Station swaps to a stable coin.
     def autoBid(self):
