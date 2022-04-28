@@ -1,4 +1,5 @@
 # Kujira.py
+from pickle import FALSE
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
@@ -23,10 +24,29 @@ class Kujira:
     def autoWithdraw(self):
         print("Michael is gonna build me!")
 
-        self.driver.implicitly_wait(5) #Identified as the method to get button to be clicked
+        self.driver.implicitly_wait(3) #Identified as the method to get button to be clicked
 
 
         self.driver.maximize_window()
+
+        firstzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[1]')
+
+        secondzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[2]')
+
+        value = []
+
+        zeronumber = str(firstzero.text)
+        zeronumber2 = str(secondzero.text)
+
+        value = (zeronumber + zeronumber2)
+        print(value)
+
+        # for _ in range(10):
+        
+                  
+                
+            # if (count == '0.') and (count2 == '000000'):
+            #     print('pee pee')
     
         # test = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[1]/div[1]/div/i[1]')
         # test.click()
@@ -39,12 +59,7 @@ class Kujira:
     def autoBid(self):
         print("Michael might build me!")
 
-    def showAtrributes(self):
-        print(self.chromeDriverPath, self.bLunaMarketURL)
-
-    #!!!!!ADD MICHAEL'S OLD FUNCTIONS HERE
-
-    
+       
     # def wallet(self):
     #     print("Sah dude?    'Dude' or 'Sah'?")
 
