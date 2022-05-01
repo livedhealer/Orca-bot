@@ -29,22 +29,21 @@ class Kujira:
 
         self.driver.maximize_window()
 
-        firstzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[1]')
-
-        secondzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[2]')
-
-        value = []
-
-        zeronumber = str(firstzero.text)
-        zeronumber2 = str(secondzero.text)
-
-        value = (zeronumber + zeronumber2)
+        value = []      
         
         bean_counter = 0
 
         #While loop to check the value of Kujira and click withdrawal
         while value == "0.000000":
-            if (bean_counter == 150):
+            firstzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[1]')
+
+            secondzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[2]')        
+
+            zeronumber = str(firstzero.text)
+            zeronumber2 = str(secondzero.text)
+
+            value = (zeronumber + zeronumber2)
+        if (bean_counter == 150):
                 print("Damn")
                 bean_counter = 0        
         else:
