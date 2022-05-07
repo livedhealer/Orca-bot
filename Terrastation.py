@@ -12,23 +12,6 @@ from selenium.common.exceptions import TimeoutException
 
 import time
 
-"""
-Control flow:
-
-----------init------------
-[x] Prompt user to input their TStation Password and finish setup of TStation extension
-
-----------after liquidation----------
-- Enter amounts
-- Swap bluna -> luna -> UST -> aUST
-- Enter password
--------------Todo------------------
-[x] create verifyElementContainsText() function to make sure we're clicking what we think we're clicking...
-[x] catch NoSuchElement Exceptions every time we use a driver.find_ method... This'll let us gracefully handle website updates that move buttons around on us...
-[x] instead of .implicitly_wait method calls, use loops or builtin functions that watch for something to populate...
-"""
-
-
 
 class TerraStation:
 

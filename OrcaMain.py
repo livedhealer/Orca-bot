@@ -10,8 +10,8 @@ orca = Kujira()
 #while True: 
 bLunaWithdrawalAmount = orca.autoWithdraw()
 #bLunaWithdrawalAmount = .0001 # Use this line for testing
-terra.swap("bLuna", bLunaWithdrawalAmount, "Luna")
-terra.swap("Luna", terra.lunaIntermediateAmount, "UST")
+# terra.swap("bLuna", bLunaWithdrawalAmount, "Luna")
+# terra.swap("Luna", terra.lunaIntermediateAmount, "UST")
 #orca.autobid()
 
 
