@@ -1,7 +1,9 @@
 # Terrastation.py
+from doctest import OutputChecker
 from multiprocessing.connection import wait
 from operator import truediv
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -38,40 +40,98 @@ class TerraStation:
         #User creds stored for plugging into website prompts when completing the swaps...
         self.username = ""
         self.password = ""
-        self.terraStationURL = "https://station.terra.money/swap" 
+        self.chromeExtensionPage = "https://chrome.google.com/webstore/detail/terra-station/aiifbnbfobpmeekipheeijimdpnlpgpp"
+        self.terraStationExtensionURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/swap" 
 
         #Get the driver pointed towards the Terra Station swap webpage...
-        self.driver.get(self.terraStationURL)
- 
-        # self.driver.implicitly_wait(7) #Identified as the method to get button to be clicked
-        # connect = self.driver.find_element_by_xpath("/html/body/div[1]/div/header/div/div/button")
-        # connect.click()
+        self.driver.get(self.chromeExtensionPage)
+
         try:
-            connect = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/header/div/div/button")))
-            self.verifyElementContainsText(connect, "Connect")
-            connect.click()
+            addToChromeButton = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div")))
+            self.verifyElementContainsText(addToChromeButton, "Add to Chrome")
+            addToChromeButton.click()
         except TimeoutException:
-            print("Red alert! Either item does not exist or internet connection timed out.")
- 
- 
-        try:
-            walletConnect = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[4]/div/div/section/div/section/button[2]")))
-            self.verifyElementContainsText(walletConnect, "Wallet Connect")
-            walletConnect.click()
-        except TimeoutException:
-            print("Red alert! Either item does not exist or internet connection timed out.")
+            print("Either addToChromeButton does not exist or internet connection timed out.")
 
         self.driver.implicitly_wait(1) #Identified as the method to get button to be clicked
 
-        #Wait while the QR code popup is on screen... 
-        popupOnScreen = True
-        while popupOnScreen:
-            try:
-                popup = self.driver.find_element_by_class_name("wallet-wc-modal--content")
-            except NoSuchElementException:
-                popupOnScreen = False
+        #TODO: Wait until popup is onscreen, then click the add extension button
+        # popupOnScreen = False
+        # while popupOnScreen:
+        #     try:
+        #         popup = self.driver.find_element_by_class_name("")
+        #         popupOnScreen = True
+        #         popup.click()
+        #     except NoSuchElementException:
+        #         popupOnScreen = False
 
-        connect = self.driver.find_element_by_xpath("/html/body/div[1]/div/header/div/div/button") #
+        self.password = input("Enter your Terra Station password into the terminal to let me know that you've added the Terra Station Extension and logged in to your wallet...")
+
+        self.driver.get(self.terraStationExtensionURL)
+
+        self.driver.implicitly_wait(7)
+
+        self.swap("Luna", ".0001", "UST")
+
+
+    def swap(self, fromCoin, amount, toCoin):
+
+        self.driver.implicitly_wait(7)
+
+        # Click the dropdown arrows to expose the search bars and coin options
+        fromDropDownButton = self.driver.find_element_by_xpath("/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")
+        fromDropDownButton.click()
+        toDropDownButton = self.driver.find_element_by_xpath ("/html/body/div[1]/article/div/section/article/section/form/div[3]/div/div/div/button")
+        toDropDownButton.click()
+        
+        # Search bars are now exposed
+        fromSearchBar = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/div/section/div[1]/input")
+        toSearchBar = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[3]/div/div/section/div[1]/input")
+
+        # click on search windows and search for fromCoin and toCoin
+        searches = ActionChains(self.driver)
+        
+        #search for fromCoin
+        searches.click(on_element = fromSearchBar)
+        searches.send_keys(fromCoin)
+
+        #search for toCoin
+        searches.click(on_element = toSearchBar)
+        searches.send_keys(toCoin)
+
+        #make it happen
+        searches.perform()
+
+        #Find and click the exposed elements representing the coins we want to swap
+        toCoinElement = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/div/section/div[2]/section/button")
+        toCoinElement.click()
+
+        fromCoinElement = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[3]/div/div/section/div[2]/section/button")
+        fromCoinElement.click()
+
+        #Click on amount window and input how much of the fromCoin we want to swap
+        inputAmount = ActionChains(self.driver)
+
+        #How much are we talkin about here...
+
+        fromCoinAmountWindow = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/div/div/input")
+        inputAmount.click(on_element = fromCoinAmountWindow)
+        inputAmount.send_keys(amount)
+        inputAmount.perform()
+
+        enterPassword = ActionChains(self.driver)
+        #Enter the password "/html/body/div/article/div/section/article/section/form/div[5]/div/div/input"
+        passwordWindow = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[6]/div/div/input")
+        enterPassword.click(on_element = passwordWindow)
+        enterPassword.send_keys(self.password)
+
+        submitButton = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[6]/button")
+        submitButton.click()
+
+        #Make that $$$
+        enterPassword.perform()
+
+        print("WE DID IT MR. OBAMA, WE SOLVED RACISM!!!")
 
 
 #Make sure the webElement contains the text specified before proceeding. If not, kill the program. 
