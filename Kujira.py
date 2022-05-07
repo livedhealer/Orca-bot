@@ -29,26 +29,30 @@ class Kujira:
 
         self.driver.maximize_window()
 
-        value = []      
+        value = "0.000000"      
         
         bean_counter = 0
 
         #While loop to check the value of Kujira and click withdrawal
         while value == "0.000000":
+            
             firstzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[1]')
 
             secondzero = self.driver.find_element_by_xpath ('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/h3/div/span[2]')        
 
             zeronumber = str(firstzero.text)
+            
             zeronumber2 = str(secondzero.text)
 
+            bean_counter += 1
+
             value = (zeronumber + zeronumber2)
-        if (bean_counter == 150):
+            if (bean_counter == 150):
                 print("Damn")
                 bean_counter = 0        
-        else:
-            withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[1]/div[3]/button[1]')
-            withdrawal.click()
+            
+        withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[1]/div[3]/button[1]')
+        withdrawal.click()
 
 
     #This would allow us to automatically re-invest our earnings without a human to baby-sit the computer after making a withdrawal and Terra Station swaps to a stable coin.
