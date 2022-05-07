@@ -49,8 +49,9 @@ class Kujira:
             if (bean_counter == 150):
                 print("Damn")
                 bean_counter = 0        
-            
-        withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[1]/div[3]/button[1]')
+        
+        print("KABOOOOOOOOOOOOM!!!!! First live fire exercise is a success...")
+        withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/button')
         withdrawal.click()
 
 
