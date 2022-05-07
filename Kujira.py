@@ -21,7 +21,7 @@ class Kujira:
 
     #Bread and butter of this class... Check for nonzero amount of bLuna to withdraw, and if nonzero, SMASH that withdraw button!
     def autoWithdraw(self):
-        print("Michael is gonna build me!")
+        # print("Michael is gonna build me!")
 
         self.driver.implicitly_wait(3) #Identified as the method to get button to be clicked
 
@@ -50,7 +50,7 @@ class Kujira:
                 print("Damn")
                 bean_counter = 0        
             
-        withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[1]/div[3]/button[1]')
+        withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/button')
         withdrawal.click()
 
 
