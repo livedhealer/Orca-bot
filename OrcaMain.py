@@ -3,7 +3,15 @@
 from Kujira import Kujira
 from Terrastation import TerraStation
 
-#terra = TerraStation()
+terra = TerraStation()
 orca = Kujira()
-# orca.showAtrributes()
+
+#This loop will run until you stop it - making money the whole time...
+#while True: 
+bLunaWithdrawalAmount = orca.autoWithdraw()
+#bLunaWithdrawalAmount = .0001 # Use this line for testing
+# terra.swap("bLuna", bLunaWithdrawalAmount, "Luna")
+# terra.swap("Luna", terra.lunaIntermediateAmount, "UST")
+#orca.autobid()
+
 

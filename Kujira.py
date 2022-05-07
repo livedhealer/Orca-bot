@@ -9,7 +9,6 @@ class Kujira:
         self.bLunaMarketURL = "https://orca.kujira.app/markets/terra/anchor/bLuna"
         self.driver = webdriver.Chrome(".\chromedriver.exe") #Use Chrome...
         self.driver.get(self.bLunaMarketURL) #Pop open a tab to the bLuna collateral market...
-        self.autoWithdraw()
 
         #!!!!!ADD MICHAEL'S OLD FUNCTIONS HERE
         
@@ -54,10 +53,16 @@ class Kujira:
         withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/button')
         withdrawal.click()
 
+        #WE NEED TO FIGURE OUT HOW TO INTERACT WITH THE TERRA STATION POPUP THAT OCCURS HERE......
+
+        return value
+
 
     #This would allow us to automatically re-invest our earnings without a human to baby-sit the computer after making a withdrawal and Terra Station swaps to a stable coin.
     def autoBid(self):
         print("Michael might build me!")
+
+        #There are at least 2x confirmation popups that occur from Terra Station when this method runs...
 
        
     # def wallet(self):

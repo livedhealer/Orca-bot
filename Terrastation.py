@@ -12,25 +12,6 @@ from selenium.common.exceptions import TimeoutException
 
 import time
 
-"""
-Control flow:
-
-----------init------------
-[x] Click "Connect" button
-[x] Click "Wallet Connect" button
-[x] Wait for user to do the thing...
-- Once user input complete, click drop downs and show all checkbox
-----------after liquidation----------
-- Enter amounts
-- Swap bluna -> luna -> UST -> aUST
-- Enter password
--------------Todo------------------
-[x] create verifyElementContainsText() function to make sure we're clicking what we think we're clicking...
-[x] catch NoSuchElement Exceptions every time we use a driver.find_ method... This'll let us gracefully handle website updates that move buttons around on us...
-[x] instead of .implicitly_wait method calls, use loops or builtin functions that watch for something to populate...
-"""
-
-
 
 class TerraStation:
 
@@ -40,6 +21,7 @@ class TerraStation:
         #User creds stored for plugging into website prompts when completing the swaps...
         self.username = ""
         self.password = ""
+        self.lunaIntermediateAmount = ""
         self.chromeExtensionPage = "https://chrome.google.com/webstore/detail/terra-station/aiifbnbfobpmeekipheeijimdpnlpgpp"
         self.terraStationExtensionURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/swap" 
 
@@ -71,12 +53,13 @@ class TerraStation:
 
         self.driver.implicitly_wait(7)
 
-        self.swap("Luna", ".0001", "UST")
-
 
     def swap(self, fromCoin, amount, toCoin):
 
-        self.driver.implicitly_wait(7)
+        # Make sure we're already on the swap page of the Terra Station Extension
+        if self.driver.current_url != self.terraStationExtensionURL:
+            self.driver.get(self.terraStationExtensionURL)
+            self.driver.implicitly_wait(7)
 
         # Click the dropdown arrows to expose the search bars and coin options
         fromDropDownButton = self.driver.find_element_by_xpath("/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")
@@ -119,19 +102,30 @@ class TerraStation:
         inputAmount.send_keys(amount)
         inputAmount.perform()
 
+        if fromCoin == "bLuna":
+            self.extractTradeLunaAmount()
+
         enterPassword = ActionChains(self.driver)
         #Enter the password "/html/body/div/article/div/section/article/section/form/div[5]/div/div/input"
         passwordWindow = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[6]/div/div/input")
         enterPassword.click(on_element = passwordWindow)
+
         enterPassword.send_keys(self.password)
 
         submitButton = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[6]/button")
-        submitButton.click()
+        enterPassword.click(on_element = submitButton)
 
         #Make that $$$
         enterPassword.perform()
 
         print("WE DID IT MR. OBAMA, WE SOLVED RACISM!!!")
+
+        try:
+            confirmButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[4]/div/div/footer/button")))
+            self.verifyElementContainsText(confirmButton, "Confirm")
+            confirmButton.click()
+        except TimeoutException:
+            print("RED ALERT!!! Either confirmButton does not exist or transaction was never verified!!!.")
 
 
 #Make sure the webElement contains the text specified before proceeding. If not, kill the program. 
@@ -144,7 +138,14 @@ class TerraStation:
             print("Red alert! " + webElement.text + " does not contain " + text)
             exit()
             return
-            
+
+    def extractTradeLunaAmount(self):
+        lunaValue = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[3]/div/div/div/span")
+        while lunaValue.text.__contains__("Simulating"):
+            lunaValue = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[3]/div/div/div/span")
+        self.lunaIntermediateAmount = lunaValue.text[2:]
+
+        print(self.lunaIntermediateAmount + " " + lunaValue.text)
 
     def showAtrributes(self):
         print(self.terraStationURL,self.username, self.password)
