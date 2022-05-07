@@ -62,8 +62,13 @@ class Kujira:
     def autoBid(self):
         print("Michael might build me!")
 
-        #There are at least 2x confirmation popups that occur from Terra Station when this method runs...
-
+    """
+    ( ) Click Premium (discount) and allow an input
+    ( ) Click Bid Amount and allow an input
+    ( ) Click Checkbox for Withdrawal of a..
+    ( ) Click Place My Bid
+    
+    """
        
     # def wallet(self):
     #     print("Sah dude?    'Dude' or 'Sah'?")
