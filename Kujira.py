@@ -1,13 +1,41 @@
 # Kujira.py
+
+from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import time
 
 class Kujira:
     
     def __init__(self):
+        self.password = ""
+        self.secondTab = "secondtab"
+        self.terraStationExtensionHomeURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#"
+        self.terraStationExtensionLoginURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/auth/recover"
         self.bLunaMarketURL = "https://orca.kujira.app/markets/terra/anchor/bLuna"
-        self.driver = webdriver.Chrome(".\chromedriver.exe") #Use Chrome...
+        
+        addPluginOption = self.addTerraStationPlugin()
+        # Kickstart the webdriver and add the Terra Station plugin
+        self.driver = webdriver.Chrome(".\chromedriver.exe", options=addPluginOption) #Use Chrome...
+        self.driver.get(self.terraStationExtensionLoginURL)
+        self.addTerraStationPlugin()
+
+        #Login to the wallet
+        self.initializeWallet()
+        self.driver.get(self.terraStationExtensionHomeURL)
+
+        # Save the handle of this first tab so we can switch to it later
+        self.firstTab = self.driver.current_window_handle
+  
+        # Lets open Kujira in the second tab
+        self.driver.execute_script("window.open('about:blank', 'secondtab');")
+        self.driver.switch_to.window(self.secondTab)
         self.driver.get(self.bLunaMarketURL) #Pop open a tab to the bLuna collateral market...
 
         #!!!!!ADD MICHAEL'S OLD FUNCTIONS HERE
@@ -25,7 +53,7 @@ class Kujira:
         self.driver.implicitly_wait(3) #Identified as the method to get button to be clicked
 
 
-        self.driver.maximize_window()
+        #self.driver.maximize_window()
 
         value = "0.000000"      
         
@@ -88,3 +116,85 @@ class Kujira:
     #         print("PeePee")
     #     else:
     #         print("Yeet")
+
+    def addTerraStationPlugin(self):
+        options = webdriver.ChromeOptions()
+        options.add_extension("./Terra2.9.0_0.crx")
+        return options
+
+    def initializeWallet(self):
+
+        # Prompt user to input the filepath to their auth file        
+        filename = input("Enter the filepath to your LoginInfo.txt file (see template in repo, but do not save there!): ")
+        
+        # Read and save user credentials from file
+        loginInfo = ["", "", ""]
+        i = 0
+        with open(filename) as file:
+            for line in file:
+                loginInfo[i] = line
+                i+=1
+        file.close()
+        self.password = loginInfo[1] #Save for transaction confirmations!!
+
+        # Wait until the form is loaded, then input user credentials, and finally click submit
+        formEntry = ActionChains(self.driver)
+        try:
+            walletName = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div/article/section/div/form/div[1]/div/input")))
+            formEntry.send_keys_to_element(walletName, loginInfo[0])
+        except TimeoutException:
+            print("Could not locate login form fields")
+
+        password = self.driver.find_element_by_xpath("/html/body/div/article/section/div/form/div[2]/div/input")
+        formEntry.send_keys_to_element(password, loginInfo[1])
+
+        passwordConfirm = self.driver.find_element_by_xpath("/html/body/div/article/section/div/form/div[3]/div/input")
+        formEntry.send_keys_to_element(passwordConfirm, loginInfo[1])
+
+        mneumonic = self.driver.find_element_by_xpath("/html/body/div/article/section/div/form/div[4]/div/input")
+        formEntry.send_keys_to_element(mneumonic, loginInfo[2])
+
+        submitButton = self.driver.find_element_by_xpath("/html/body/div/article/section/div/form/button")
+        formEntry.click(on_element = submitButton)
+
+        formEntry.perform()
+
+        while self.driver.current_url != "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/auth/recover#3":
+            continue
+        
+        try:
+            connectButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div/article/section/div/article/div/button")))
+            connectButton.click()
+        except TimeoutException:
+            print("Could not locate connect button")
+
+
+    #This method authorizes Kujira transactions! It assumes that Terra Station is still open and logged in at the first tab
+    def authorizeTransaction(self):
+
+        self.driver.switch_to.window(self.firstTab)
+        self.driver.get(self.terraStationExtensionHomeURL)
+
+        # self.driver.implicitly_wait(3)
+
+        # passwordBox = self.driver.find_element_by_xpath("/html/body/div[1]/article/section/div/div/form/div[1]/div/div/input")
+        # print("passwordBox.text = " + passwordBox.text)
+        #Get ahold of the password box and input our password... Keep trying if we don't immediately find it.
+        while True:
+            try:
+                passwordBox = WebDriverWait(self.driver, 1).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/section/div/div/form/div[1]/div/div/input")))
+                break
+            except TimeoutException:
+                print("Could not locate post transaction form fields. Trying again...")
+                self.driver.get(self.terraStationExtensionHomeURL)
+
+        #Setup an action chain to fill the form and smash the button
+        yeetPassword = ActionChains(self.driver)
+        yeetPassword.send_keys_to_element(passwordBox, self.password)
+
+        #Click the post button
+        postButton = self.driver.find_element_by_xpath("/html/body/div[1]/article/section/div/div/form/div[2]/button[2]")
+        yeetPassword.click(on_element = postButton)
+
+        yeetPassword.perform()
+
