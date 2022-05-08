@@ -181,20 +181,26 @@ class Kujira:
         # print("passwordBox.text = " + passwordBox.text)
         #Get ahold of the password box and input our password... Keep trying if we don't immediately find it.
         while True:
-            try:
-                passwordBox = WebDriverWait(self.driver, 1).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/section/div/div/form/div[1]/div/div/input")))
+            try:                                                                                            
+                passwordBox = WebDriverWait(self.driver, 2).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/section/div/div/form/div[1]/div/div/input")))
                 break
             except TimeoutException:
                 print("Could not locate post transaction form fields. Trying again...")
                 self.driver.get(self.terraStationExtensionHomeURL)
 
-        #Setup an action chain to fill the form and smash the button
+        #Setup an action chain to fill the form
         yeetPassword = ActionChains(self.driver)
         yeetPassword.send_keys_to_element(passwordBox, self.password)
-
-        #Click the post button
-        postButton = self.driver.find_element_by_xpath("/html/body/div[1]/article/section/div/div/form/div[2]/button[2]")
-        yeetPassword.click(on_element = postButton)
-
         yeetPassword.perform()
+
+
+        try:
+            # Find and click the post button                                                                                            
+            postButton = WebDriverWait(self.driver, 2).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/section/div/div/form/div[2]/button[2]")))
+            postButton.click()
+        except TimeoutException:
+            print("Could not locate transaction post button...")
+            self.driver.get(self.terraStationExtensionHomeURL)
+        
+        
 
