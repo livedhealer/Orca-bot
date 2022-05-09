@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.chrome.options import Options 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -196,11 +197,10 @@ class Kujira:
 
         try:
             # Find and click the post button                                                                                            
-            postButton = WebDriverWait(self.driver, 2).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/section/div/div/form/div[2]/button[2]")))
+            postButton = WebDriverWait(self.driver, 4).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/section/div/div/form/div[2]/button[2]")))
             postButton.click()
         except TimeoutException:
             print("Could not locate transaction post button...")
             self.driver.get(self.terraStationExtensionHomeURL)
-        
-        
-
+        except StaleElementReferenceException:
+            print("Weird exception... postButton still clicked. Press on in this one case!")
