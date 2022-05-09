@@ -36,14 +36,21 @@ class TerraStation:
 
     def swap(self, fromCoin, amount, toCoin):
 
+        #Need to refresh the page so that the recently added amounts are included... Learned this the hard way
+        self.driver.get(self.terraStationExtensionSwapURL)
+
+        try:
+            fromDropDownButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")))
+            fromDropDownButton.click()
+        except TimeoutException:
+            print("RED ALERT!!! Could not locate fromDropDownButton button, so swap could not be processed")       
+
         # Make sure we're already on the swap page of the Terra Station Extension
-        if self.driver.current_url != self.terraStationExtensionSwapURL:
-            self.driver.get(self.terraStationExtensionSwapURL)
-            self.driver.implicitly_wait(7)
+        # if self.driver.current_url != self.terraStationExtensionSwapURL:
+        #     self.driver.get(self.terraStationExtensionSwapURL)
+        #     self.driver.implicitly_wait(7)
 
         # Click the dropdown arrows to expose the search bars and coin options
-        fromDropDownButton = self.driver.find_element_by_xpath("/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")
-        fromDropDownButton.click()
         toDropDownButton = self.driver.find_element_by_xpath ("/html/body/div[1]/article/div/section/article/section/form/div[3]/div/div/div/button")
         toDropDownButton.click()
         
@@ -101,7 +108,7 @@ class TerraStation:
         print("WE DID IT MR. OBAMA, WE SOLVED RACISM!!!")
 
         try:
-            confirmButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[4]/div/div/footer/button")))
+            confirmButton = WebDriverWait(self.driver, 150).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[4]/div/div/footer/button")))
             self.verifyElementContainsText(confirmButton, "Confirm")
             confirmButton.click()
         except TimeoutException:

@@ -17,6 +17,7 @@ class Kujira:
     def __init__(self):
         self.password = ""
         self.secondTab = "secondtab"
+        self.bLunaWithdrawThresholdAmount = 0 # By default... Code below will alter this so as to not lose money on small transactions
         self.terraStationExtensionHomeURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#"
         self.terraStationExtensionLoginURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/auth/recover"
         self.bLunaMarketURL = "https://orca.kujira.app/markets/terra/anchor/bLuna"
@@ -78,7 +79,7 @@ class Kujira:
                 print("Damn")
                 bean_counter = 0        
         
-        print("KABOOOOOOOOOOOOM!!!!! First live fire exercise is a success...")
+        print("KABOOOOOOOOOOOOM!!!!! We got something")
         withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/button')
         withdrawal.click()
 
