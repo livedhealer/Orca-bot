@@ -18,6 +18,7 @@ class TerraStation:
         self.lunaIntermediateAmount = ""
         self.terraStationExtensionSwapURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/swap"
         self.terraStationExtensionLoginURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/auth/recover"
+        self.terraStationExtensionHomeURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/"
 
 
         addPluginOption = self.addTerraStationPlugin()
@@ -35,11 +36,11 @@ class TerraStation:
     # Enter "MAX" in the amount field to send all of fromCoin to toCoin (don't do this if swapping from UST to something else...) 
     def swap(self, fromCoin, amount, toCoin):
 
+        # Go back to the home page of the Terra Station Extension, make sure it updates ALL of the values
+        #if self.driver.current_url != self.terraStationExtensionSwapURL:
+        self.driver.get(self.terraStationExtensionHomeURL)
         self.refresh() # make sure we have up-to-date values in the wallet... CRITICAL. Aaaarrrg!
-
-        # Make sure we're already on the swap page of the Terra Station Extension
-        if self.driver.current_url != self.terraStationExtensionSwapURL:
-            self.driver.get(self.terraStationExtensionSwapURL)
+        self.driver.get(self.terraStationExtensionSwapURL)
 
         try:
             fromDropDownButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")))

@@ -81,6 +81,7 @@ class Kujira:
                 bean_counter = 0        
         
         print("KABOOOOOOOOOOOOM!!!!! We got something")
+        self.driver.implicitly_wait(1) #We've had a problem of clicking too fast...
         withdrawal = self.driver.find_element_by_xpath('/html/body/div[1]/div/div[3]/div[2]/div/div/div[2]/button')
         withdrawal.click()
 
