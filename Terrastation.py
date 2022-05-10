@@ -31,14 +31,15 @@ class TerraStation:
 
         self.driver.implicitly_wait(7)
 
-
+    # Bread and butter of this class. Swaps specified amount of fromCoin to toCoin. 
+    # Enter "MAX" in the amount field to send all of fromCoin to toCoin (don't do this if swapping from UST to something else...) 
     def swap(self, fromCoin, amount, toCoin):
+
+        self.refresh() # make sure we have up-to-date values in the wallet... CRITICAL. Aaaarrrg!
 
         # Make sure we're already on the swap page of the Terra Station Extension
         if self.driver.current_url != self.terraStationExtensionSwapURL:
             self.driver.get(self.terraStationExtensionSwapURL)
-
-        self.refresh() # make sure we have up-to-date values in the wallet... CRITICAL. Aaaarrrg!
 
         try:
             fromDropDownButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")))
@@ -75,16 +76,19 @@ class TerraStation:
         fromCoinElement = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[3]/div/div/section/div[2]/section/button")
         fromCoinElement.click()
 
-        #Click on amount window and input how much of the fromCoin we want to swap
-        inputAmount = ActionChains(self.driver)
-
         #How much are we talkin about here...
 
-        fromCoinAmountWindow = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/div/div/input")
-        inputAmount.click(on_element = fromCoinAmountWindow)
-        inputAmount.send_keys(amount)
-        inputAmount.perform()
-
+        #Click on amount window and input manually how much of the fromCoin we want to swap
+        if(amount != "MAX"):
+            inputAmount = ActionChains(self.driver)
+            fromCoinAmountWindow = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/div/div/input")
+            inputAmount.click(on_element = fromCoinAmountWindow)
+            inputAmount.send_keys(amount)
+            inputAmount.perform()
+        else:
+            maxButton = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/header/aside/button")
+            maxButton.click()
+            
         if fromCoin == "bLuna":
             self.extractTradeLunaAmount()
 

@@ -18,8 +18,8 @@ while True:
 
     print("I made it here")
 
-    terra.swap("bLuna", bLunaWithdrawalAmount, "Luna")
-    terra.swap("Luna", terra.lunaIntermediateAmount, "UST")
+    terra.swap("bLuna", "MAX", "Luna")
+    terra.swap("Luna", "MAX", "UST")
 #orca.autobid()
 
 
