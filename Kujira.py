@@ -14,7 +14,8 @@ from selenium.webdriver.common.keys import Keys
 
 class Kujira:
     
-    def __init__(self):
+    def __init__(self, fileLocation):
+        self.fileLocation = fileLocation
         self.password = ""
         self.secondTab = "secondtab"
         self.bLunaWithdrawThresholdAmount = 0 # By default... Code below will alter this so as to not lose money on small transactions
@@ -125,14 +126,11 @@ class Kujira:
         return options
 
     def initializeWallet(self):
-
-        # Prompt user to input the filepath to their auth file        
-        filename = input("Enter the filepath to your LoginInfo.txt file (see template in repo, but do not save there!): ")
         
         # Read and save user credentials from file
         loginInfo = ["", "", ""]
         i = 0
-        with open(filename) as file:
+        with open(self.fileLocation) as file:
             for line in file:
                 loginInfo[i] = line
                 i+=1
