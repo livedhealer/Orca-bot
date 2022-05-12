@@ -3,15 +3,23 @@
 from Kujira import Kujira
 from Terrastation import TerraStation
 
-terra = TerraStation()
-orca = Kujira()
+loginInfoPath = input("Type the filepath of your wallet login info file and press enter: ")
 
-#This loop will run until you stop it - making money the whole time...
-#while True: 
-bLunaWithdrawalAmount = orca.autoWithdraw()
-#bLunaWithdrawalAmount = .0001 # Use this line for testing
-# terra.swap("bLuna", bLunaWithdrawalAmount, "Luna")
-# terra.swap("Luna", terra.lunaIntermediateAmount, "UST")
+terra = TerraStation(loginInfoPath)
+input("Press enter when ready") #Need to use this time to manually add bLuna to the list in Terra Station
+
+orca = Kujira(loginInfoPath)
+input("Press enter when ready") #Need to use this time to manually click the "add wallet buttons"
+
+# # When fully uncommented, this loop will run until you stop it - making money the whole time...
+while True: 
+    bLunaWithdrawalAmount = orca.autoWithdraw()
+    orca.authorizeTransaction()
+
+    print("I made it here")
+
+    terra.swap("bLuna", "MAX", "Luna")
+    terra.swap("Luna", "MAX", "UST")
 #orca.autobid()
 
 

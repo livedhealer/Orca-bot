@@ -1,7 +1,4 @@
 # Terrastation.py
-from doctest import OutputChecker
-from multiprocessing.connection import wait
-from operator import truediv
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -10,41 +7,48 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options 
-
-
 import time
 
 
 class TerraStation:
 
-    def __init__(self):
-        self.driver = webdriver.Chrome(".\chromedriver.exe")
-
-        #User creds stored for plugging into website prompts when completing the swaps...
-        self.username = ""
+    def __init__(self, fileLocation):
+        self.fileLocation = fileLocation
         self.password = ""
         self.lunaIntermediateAmount = ""
-        self.chromeExtensionPage = "https://chrome.google.com/webstore/detail/terra-station/aiifbnbfobpmeekipheeijimdpnlpgpp"
         self.terraStationExtensionSwapURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/swap"
         self.terraStationExtensionLoginURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/auth/recover"
+        self.terraStationExtensionHomeURL = "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/"
 
-        #Get the driver pointed towards the Terra Station login webpage...
+
+        addPluginOption = self.addTerraStationPlugin()
+        # Kickstart the webdriver and add the Terra Station plugin
+        self.driver = webdriver.Chrome(".\chromedriver.exe", options=addPluginOption) #Use Chrome...
+        self.driver.get(self.terraStationExtensionLoginURL)
         self.addTerraStationPlugin()
         self.initializeWallet()
 
+        #User creds stored for plugging into website prompts when completing the swaps...
+
         self.driver.implicitly_wait(7)
 
-
+    # Bread and butter of this class. Swaps specified amount of fromCoin to toCoin. 
+    # Enter "MAX" in the amount field to send all of fromCoin to toCoin (don't do this if swapping from UST to something else...) 
     def swap(self, fromCoin, amount, toCoin):
 
-        # Make sure we're already on the swap page of the Terra Station Extension
-        if self.driver.current_url != self.terraStationExtensionSwapURL:
-            self.driver.get(self.terraStationExtensionSwapURL)
-            self.driver.implicitly_wait(7)
+        # Go back to the home page of the Terra Station Extension, make sure it updates ALL of the values
+        #if self.driver.current_url != self.terraStationExtensionSwapURL:
+        self.driver.get(self.terraStationExtensionHomeURL)
+        self.refresh() # make sure we have up-to-date values in the wallet... CRITICAL. Aaaarrrg!
+        self.driver.get(self.terraStationExtensionSwapURL)
+
+        try:
+            fromDropDownButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")))
+            fromDropDownButton.click()
+        except TimeoutException:
+            print("RED ALERT!!! Could not locate fromDropDownButton button, so swap could not be processed")       
 
         # Click the dropdown arrows to expose the search bars and coin options
-        fromDropDownButton = self.driver.find_element_by_xpath("/html/body/div[1]/article/div/section/article/section/form/div[1]/div/div/div/button")
-        fromDropDownButton.click()
         toDropDownButton = self.driver.find_element_by_xpath ("/html/body/div[1]/article/div/section/article/section/form/div[3]/div/div/div/button")
         toDropDownButton.click()
         
@@ -73,16 +77,19 @@ class TerraStation:
         fromCoinElement = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[3]/div/div/section/div[2]/section/button")
         fromCoinElement.click()
 
-        #Click on amount window and input how much of the fromCoin we want to swap
-        inputAmount = ActionChains(self.driver)
-
         #How much are we talkin about here...
 
-        fromCoinAmountWindow = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/div/div/input")
-        inputAmount.click(on_element = fromCoinAmountWindow)
-        inputAmount.send_keys(amount)
-        inputAmount.perform()
-
+        #Click on amount window and input manually how much of the fromCoin we want to swap
+        if(amount != "MAX"):
+            inputAmount = ActionChains(self.driver)
+            fromCoinAmountWindow = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/div/div/input")
+            inputAmount.click(on_element = fromCoinAmountWindow)
+            inputAmount.send_keys(amount)
+            inputAmount.perform()
+        else:
+            maxButton = self.driver.find_element_by_xpath("/html/body/div/article/div/section/article/section/form/div[1]/div/header/aside/button")
+            maxButton.click()
+            
         if fromCoin == "bLuna":
             self.extractTradeLunaAmount()
 
@@ -102,7 +109,7 @@ class TerraStation:
         print("WE DID IT MR. OBAMA, WE SOLVED RACISM!!!")
 
         try:
-            confirmButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[4]/div/div/footer/button")))
+            confirmButton = WebDriverWait(self.driver, 600).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[4]/div/div/footer/button")))
             self.verifyElementContainsText(confirmButton, "Confirm")
             confirmButton.click()
         except TimeoutException:
@@ -134,17 +141,27 @@ class TerraStation:
     def addTerraStationPlugin(self):
         options = webdriver.ChromeOptions()
         options.add_extension("./Terra2.9.0_0.crx")
-        self.driver = webdriver.Chrome(options=options) 
-        self.driver.get(self.terraStationExtensionLoginURL)
+        return options
 
     def initializeWallet(self):
-        self.driver.implicitly_wait(10)
 
-        loginInfo = self.readLoginFile()
+        # Read and save user credentials from file
+        loginInfo = ["", "", ""]
+        i = 0
+        with open(self.fileLocation) as file:
+            for line in file:
+                loginInfo[i] = line
+                i+=1
+        file.close()
+        self.password = loginInfo[1] #Save for transaction confirmations!!
 
+        # Wait until the form is loaded, then input user credentials, and finally click submit
         formEntry = ActionChains(self.driver)
-        walletName = self.driver.find_element_by_xpath("/html/body/div/article/section/div/form/div[1]/div/input")
-        formEntry.send_keys_to_element(walletName, loginInfo[0])
+        try:
+            walletName = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div/article/section/div/form/div[1]/div/input")))
+            formEntry.send_keys_to_element(walletName, loginInfo[0])
+        except TimeoutException:
+            print("Could not locate login form fields")
 
         password = self.driver.find_element_by_xpath("/html/body/div/article/section/div/form/div[2]/div/input")
         formEntry.send_keys_to_element(password, loginInfo[1])
@@ -160,14 +177,18 @@ class TerraStation:
 
         formEntry.perform()
 
-    def readLoginFile(self):
-        filename = input("Enter the filepath to your authentication.txt file: ")
-        loginInfo = ["", "", "", ""]
-        i = 0
-        with open(filename) as file:
-            for line in file:
-                loginInfo[i] = line
-                print(line)
-                i+=1
-        file.close()
-        return loginInfo
+        while self.driver.current_url != "chrome-extension://aiifbnbfobpmeekipheeijimdpnlpgpp/index.html#/auth/recover#3":
+            continue
+        
+        try:
+            connectButton = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div/article/section/div/article/div/button")))
+            connectButton.click()
+        except TimeoutException:
+            print("Could not locate connect button")
+
+    # Not obvious, but definitely the best way to do the job...
+    def refresh(self):
+        handle = self.driver.current_window_handle
+        self.driver.minimize_window()
+        self.driver.switch_to.window(handle)
+        
